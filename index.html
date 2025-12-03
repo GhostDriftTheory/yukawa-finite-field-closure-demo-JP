@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>湯川ポテンシャルから始める素数計算の心臓部</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-paper: #fdfdfa;
+      --bg-panel: #ffffff;
+      --text-ink: #2b2b2b;
+      --text-sub: #595857;
+      
+      --color-indigo: #1e3f66;
+      --color-purple: #6a4c9c;
+      --color-gold: #c7a65d;
+      --color-vermilion: #b54938;
+      --color-matcha: #5c7a47;
+
+      --border-thin: 1px solid rgba(43, 43, 43, 0.15);
+      --shadow-paper: 0 4px 20px rgba(30, 63, 102, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Shippori Mincho", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      background-color: var(--bg-paper);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(30, 63, 102, 0.03) 0%, transparent 70%),
+        linear-gradient(to right, rgba(43,43,43,0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(43,43,43,0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 40px 40px, 40px 40px;
+      color: var(--text-ink);
+      display: flex;
+      justify-content: center;
+      line-height: 1.7;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 1000px;
+      padding: 40px 20px 80px;
+      position: relative;
+    }
+
+    /* スマホ向け：余白を最適化 */
+    @media (max-width: 600px) {
+      .wrapper {
+        padding: 30px 16px 80px;
+      }
+    }
+
+    /* --- ヘッダーエリア --- */
+    .header-area {
+      margin-bottom: 40px;
+      text-align: center;
+      position: relative;
+      border-bottom: 1px solid rgba(43, 43, 43, 0.1);
+      padding-bottom: 24px;
+    }
+    .header-area::after {
+      content: "";
+      position: absolute;
+      bottom: 2px;
+      left: 15%;
+      right: 15%;
+      height: 1px;
+      background: var(--color-indigo);
+      opacity: 0.3;
+    }
+
+    .title-main {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text-ink);
+      letter-spacing: 0.05em;
+      font-feature-settings: "palt";
+      line-height: 1.4;
+    }
+    
+    .title-sub {
+      font-size: 14px;
+      color: var(--text-sub);
+      font-weight: 500;
+      line-height: 1.9;
+      display: inline-block;
+      max-width: 720px;
+      text-align: left;
+      /* スマホでの不自然な改行を防ぐため、PCでの改行位置を意識しつつ自然に流す */
+      word-wrap: break-word;
+    }
+    .title-sub strong {
+      color: var(--color-indigo);
+      font-weight: 700;
+    }
+
+    @media (max-width: 600px) {
+      .title-main { font-size: 22px; margin-bottom: 12px; }
+      .title-sub { 
+        font-size: 13px; 
+        text-align: justify; /* スマホでは両端揃えで美しく */
+        line-height: 1.8; 
+      }
+    }
+
+    /* --- ステップガイド --- */
+    .step-guide {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .step-card {
+      background: transparent;
+      border-bottom: 2px solid rgba(43, 43, 43, 0.1);
+      padding: 12px 10px;
+      min-width: 200px;
+      flex: 1;
+      text-align: center;
+      transition: border-color 0.3s;
+    }
+    .step-card:hover { border-color: var(--color-indigo); }
+    .step-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-gold);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .step-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-ink);
+      line-height: 1.5;
+    }
+    @media (max-width: 600px) {
+      .step-guide { flex-direction: column; gap: 12px; margin-bottom: 30px; }
+      .step-card { 
+        min-width: auto; 
+        text-align: left; 
+        padding: 10px 0; 
+        border-bottom: 1px solid rgba(43,43,43,0.1);
+        display: flex; /* 横並びにする */
+        align-items: baseline;
+        gap: 8px;
+      }
+      .step-num { 
+        margin-bottom: 0; 
+        white-space: nowrap; 
+        min-width: 45px; /* ラベル幅固定 */
+      }
+      .step-text { font-size: 13px; }
+    }
+
+    /* --- 理論パイプライン --- */
+    .theory-pipeline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin-bottom: 50px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px dashed rgba(43, 43, 43, 0.2);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .theory-pipeline span {
+      font-weight: 600;
+      color: var(--color-indigo);
+      padding: 6px 12px;
+      background: #fff;
+      border: 1px solid rgba(30, 63, 102, 0.1);
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      white-space: nowrap;
+    }
+    .pipeline-arrow {
+      color: var(--color-gold);
+      font-size: 14px;
+    }
+    .pipeline-label {
+      width: 100%; text-align: center; margin-bottom: 8px; color:var(--text-sub); font-size:11px; font-weight:bold;
+    }
+    @media (max-width: 600px) {
+      .theory-pipeline { 
+        flex-direction: column; 
+        align-items: stretch; 
+        gap: 8px; 
+        padding: 14px; 
+      }
+      .theory-pipeline span { 
+        text-align: center; 
+        font-size: 12px; 
+        white-space: normal; /* スマホでは改行許可 */
+      }
+      .pipeline-arrow { 
+        transform: rotate(90deg); 
+        align-self: center; 
+        margin: 0; 
+        height: 14px;
+      }
+      .pipeline-label { margin-bottom: 4px; }
+    }
+
+    /* --- セクション見出し --- */
+    .section-header {
+      margin-top: 50px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(43,43,43,0.08);
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-ink);
+      position: relative;
+      padding-left: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .section-title::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 4px;
+      bottom: 4px;
+      width: 4px;
+      background: var(--color-indigo);
+      border-radius: 2px;
+    }
+    .section-desc {
+      font-size: 14px;
+      color: var(--text-sub);
+      line-height: 1.7;
+      padding-left: 14px;
+    }
+    @media (max-width: 600px) {
+      .section-header { margin-top: 40px; padding-left: 0; padding-bottom: 10px; }
+      .section-title { font-size: 18px; padding-left: 10px; }
+      .section-title::before { width: 3px; }
+      .section-desc { padding-left: 0; font-size: 13px; text-align: justify; }
+    }
+    .highlight-text {
+      color: var(--color-vermilion);
+      background: rgba(181, 73, 56, 0.08);
+      padding: 0 4px;
+      font-weight: 600;
+      border-radius: 2px;
+      display: inline-block; /* 行の途中で切れないように */
+    }
+
+    /* --- パネル --- */
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .panels-single {
+      grid-template-columns: 1fr;
+    }
+    @media (max-width: 768px) {
+      .panels { grid-template-columns: 1fr; gap: 24px; }
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid rgba(43, 43, 43, 0.1);
+      border-radius: 6px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      transition: box-shadow 0.3s;
+    }
+    @media (max-width: 600px) {
+      .panel { padding: 16px; }
+    }
+    
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 14px;
+      border-bottom: 1px dotted rgba(43, 43, 43, 0.2);
+      padding-bottom: 8px;
+      gap: 8px;
+    }
+    @media (max-width: 600px) {
+      .panel-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+    }
+
+    .panel-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-ink);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .panel-label::before {
+      content: "";
+      display: block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .label-inf::before { background: var(--color-indigo); }
+    .label-fin::before { background: var(--color-purple); }
+    .label-led::before { background: var(--color-matcha); }
+
+    .panel-msg {
+      font-size: 11px;
+      color: var(--text-sub);
+      text-align: right;
+      line-height: 1.4;
+      flex: 1; 
+    }
+    @media (max-width: 600px) {
+      .panel-msg { 
+        text-align: left; 
+        font-size: 11px;
+        width: 100%;
+      }
+    }
+
+    .canvas-box {
+      width: 100%;
+      height: 260px;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 2px;
+    }
+    @media (max-width: 600px) {
+      .canvas-box { height: 220px; }
+    }
+
+    canvas { width: 100%; height: 100%; display: block; }
+    
+    .overlay-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      font-size: 10px;
+      padding: 4px 8px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(43, 43, 43, 0.15);
+      color: var(--text-ink);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      pointer-events: none;
+      font-family: monospace;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .goal-caption {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--color-indigo);
+      text-align: right;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+    @media (max-width: 600px) {
+      .goal-caption { text-align: left; }
+    }
+
+    /* --- コントロールバー --- */
+    .sec2-controls {
+      margin: 24px 0 32px;
+      padding: 20px;
+      border-radius: 6px;
+      background: #fff;
+      border: 1px solid rgba(30, 63, 102, 0.15);
+      box-shadow: 0 4px 12px rgba(30, 63, 102, 0.03);
+    }
+    @media (max-width: 600px) {
+      .sec2-controls { padding: 16px; margin: 16px 0 24px; }
+    }
+
+    .sec2-ctrl-label {
+      font-size: 13px;
+      color: var(--text-ink);
+      margin-bottom: 16px;
+      font-weight: 500;
+      line-height: 1.6;
+    }
+    .sec2-ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 600px) {
+      .sec2-ctrl-row { gap: 12px; margin-bottom: 16px; }
+    }
+    
+    .kernel-mode-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 260px; /* 折り返し制御 */
+    }
+    .kernel-mode-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-sub);
+      white-space: nowrap;
+    }
+    .kernel-select {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid rgba(43, 43, 43, 0.3);
+      border-radius: 4px;
+      background: #fdfdfa;
+      color: var(--text-ink);
+      font-family: inherit;
+      font-size: 13px; /* iOS zoom防止 */
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px top 50%;
+      background-size: 10px auto;
+    }
+    @media (max-width: 600px) {
+      .kernel-select { font-size: 14px; }
+    }
+
+    .sec2-slider {
+      flex: 1;
+      min-width: 220px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px; 
+      background: rgba(43, 43, 43, 0.15);
+      border-radius: 2px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--color-indigo);
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .sec2-slider-value {
+      font-size: 12px;
+      font-family: monospace;
+      color: var(--color-indigo);
+      white-space: nowrap;
+      min-width: 65px;
+      text-align: right;
+    }
+
+    /* 3条件ランプ */
+    .cond-lamps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(43,43,43,0.1);
+      width: 100%;
+    }
+    .cond-lamp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 12px; /* タップしやすい高さ */
+      border-radius: 20px;
+      background: #f5f5f5;
+      border: 1px solid rgba(0,0,0,0.1);
+      font-size: 11px;
+      color: var(--text-sub);
+      transition: all 0.4s ease;
+      flex: 1;
+      min-width: 130px; 
+      white-space: nowrap;
+    }
+    .cond-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ccc;
+      flex-shrink: 0;
+    }
+    .cond-ok {
+      background: #f0fdf4;
+      border-color: var(--color-matcha);
+      color: var(--color-matcha);
+      font-weight: 600;
+    }
+    .cond-ok .cond-dot { background: var(--color-matcha); }
+    .cond-fail {
+      background: #fff5f5;
+      border-color: var(--color-vermilion);
+      color: var(--color-vermilion);
+    }
+    .cond-fail .cond-dot { background: var(--color-vermilion); }
+    .cond-partial {
+      background: #fffcf0;
+      border-color: var(--color-gold);
+      color: #9c7c2e;
+    }
+    .cond-partial .cond-dot { background: var(--color-gold); }
+
+    /* 誤差表示 */
+    .sec2-error-row {
+      margin-top: 12px;
+      width: 100%;
+      display: flex;
+      gap: 20px;
+      font-size: 11px;
+      color: var(--text-sub);
+      flex-wrap: wrap;
+    }
+    @media (max-width: 600px) {
+      .sec2-error-row { flex-direction: column; gap: 8px; }
+    }
+    .error-value {
+      font-family: monospace;
+      font-weight: 700;
+      margin-left: 4px;
+      font-size: 12px;
+    }
+    .error-safe { color: var(--color-matcha); }
+    .error-unsafe { color: var(--color-vermilion); }
+
+    /* ポアンカレ注釈とエキスパートボタン */
+    .poincare-note {
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(30, 63, 102, 0.04);
+      border-left: 4px solid var(--color-purple);
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--color-indigo);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    @media (min-width: 600px) {
+      .poincare-note { 
+        flex-direction: row; 
+        justify-content: space-between; 
+        align-items: center; 
+      }
+    }
+    
+    .expert-btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    @media (min-width: 600px) {
+      .expert-btn-group { width: auto; }
+    }
+
+    .expert-btn {
+      background: #fff;
+      border: 1px solid var(--color-purple);
+      color: var(--color-purple);
+      padding: 10px 14px; /* タップ領域確保 */
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 5px rgba(106, 76, 156, 0.1);
+      flex: 1; /* スマホでボタンを横幅いっぱいに */
+      text-align: center;
+      white-space: nowrap;
+    }
+    .expert-btn:active { transform: translateY(1px); box-shadow: none; }
+    .expert-btn-sub {
+      border-color: var(--color-indigo);
+      color: var(--color-indigo);
+    }
+
+    /* 台帳ロック状態 */
+    .ledger-panel {
+      position: relative;
+      transition: box-shadow 0.6s ease, border-color 0.6s ease;
+    }
+    .ledger-panel.locked {
+      background: #f9f9f9;
+      border-style: dashed;
+    }
+    .ledger-panel.locked::before {
+      content: "🔒 条件未達成\AYukawa×Fejér で ε_safe を満たすと\A台帳が生成されます";
+      white-space: pre-wrap; /* 改行 */
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(2px);
+      z-index: 10;
+      font-size: 13px;
+      color: var(--text-sub);
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.8;
+      padding: 20px;
+    }
+    .ledger-panel.locked .ledger-table,
+    .ledger-panel.locked .ledger-context {
+      opacity: 0.1;
+      filter: blur(2px);
+    }
+    
+    @keyframes unlockGlow {
+      0% { box-shadow: 0 0 0 rgba(92, 122, 71, 0); border-color: rgba(43,43,43,0.1); }
+      50% { box-shadow: 0 0 30px rgba(92, 122, 71, 0.4); border-color: var(--color-matcha); background: #fffcfc; }
+      100% { box-shadow: 0 2px 15px rgba(0,0,0,0.05); border-color: rgba(43,43,43,0.1); background: #fff; }
+    }
+    .ledger-unlocked-anim {
+      animation: unlockGlow 1.5s ease-out;
+    }
+
+    /* 台帳コンテキスト */
+    .ledger-context {
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: var(--text-ink);
+      padding: 10px 14px;
+      background: rgba(220, 220, 220, 0.2);
+      border-left: 3px solid var(--color-matcha);
+      line-height: 1.6;
+    }
+    .highlight-poincare { color: var(--color-purple); font-weight: 700; white-space: nowrap; }
+    .highlight-kernel { color: var(--color-indigo); font-weight: 700; white-space: nowrap; }
+    .highlight-sigma { color: var(--color-matcha); font-weight: 700; white-space: nowrap; }
+
+    /* 台帳テーブル（横スクロール対応） */
+    .ledger-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 10px;
+    }
+    .ledger-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      white-space: nowrap;
+      min-width: 500px;
+    }
+    .ledger-table th {
+      text-align: left;
+      color: var(--color-indigo);
+      font-weight: 700;
+      padding: 10px 12px; /* タップしやすい高さ */
+      border-bottom: 2px solid var(--color-indigo);
+      background: #fff;
+    }
+    .ledger-table td {
+      padding: 10px 12px;
+      color: var(--text-ink);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      font-family: monospace;
+    }
+    tr.active-row {
+      background: rgba(92, 122, 71, 0.08);
+    }
+    .check-ok {
+      color: var(--color-matcha);
+      font-weight: 700;
+    }
+    .num-col { text-align: right; }
+
+    /* モーダル共通（白地ベース・スマホ対応） */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      display: flex;
+      align-items: flex-end; /* スマホでは下寄せ（操作しやすい） */
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    @media (min-width: 600px) {
+      .modal-overlay { align-items: center; background: rgba(255, 255, 255, 0.85); }
+    }
+    
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-content {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.1);
+      box-shadow: 0 -10px 40px rgba(30, 63, 102, 0.15);
+      border-radius: 16px 16px 0 0;
+      width: 100%;
+      height: 90vh;
+      max-width: 800px;
+      overflow-y: auto;
+      padding: 30px 20px 80px; /* 下余白多め（指で隠れないよう） */
+      position: relative;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      color: var(--text-ink);
+    }
+    @media (min-width: 600px) {
+      .modal-content {
+        width: 90%;
+        height: auto;
+        max-height: 85vh;
+        border-radius: 8px;
+        padding: 40px;
+        box-shadow: 0 10px 50px rgba(30, 63, 102, 0.2);
+        transform: translateY(20px);
+      }
+    }
+    
+    .modal-overlay.open .modal-content {
+      transform: translateY(0);
+    }
+    .modal-close {
+      position: sticky;
+      top: 0;
+      float: right;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      color: var(--text-sub);
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      z-index: 100;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .modal-header {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-indigo);
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--color-indigo);
+      padding-bottom: 12px;
+      text-align: center;
+      letter-spacing: 0.05em;
+      clear: both;
+      line-height: 1.4;
+    }
+    .modal-body {
+      font-size: 14px;
+      line-height: 1.9;
+      text-align: justify;
+    }
+    .modal-section { margin-bottom: 30px; }
+    .modal-section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-indigo);
+      margin-bottom: 10px;
+      padding-left: 10px;
+      border-left: 4px solid var(--color-indigo);
+    }
+    .modal-tag {
+      background: var(--color-indigo);
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 2px;
+      font-size: 11px;
+      font-weight: normal;
+      margin-right: 6px;
+      vertical-align: middle;
+      display: inline-block;
+    }
+    .modal-math-block {
+      background: #f9f9f9;
+      padding: 16px;
+      border-radius: 4px;
+      margin: 16px 0;
+      border: 1px solid rgba(0,0,0,0.05);
+      font-family: "Times New Roman", serif;
+      overflow-x: auto;
+    }
+    .modal-ref-list {
+      margin-top: 40px;
+      border-top: 1px solid rgba(0,0,0,0.1);
+      padding-top: 20px;
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+    .modal-ref-list ul { padding-left: 16px; margin-top: 8px; }
+    .modal-ref-list li { margin-bottom: 6px; }
+
+    /* フッター */
+    .footer-msg {
+      margin-top: 60px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-ink);
+      opacity: 0.8;
+      line-height: 2.2;
+      font-feature-settings: "palt";
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  
+  <div class="header-area">
+    <div class="title-main">湯川ポテンシャルから<br>始める素数計算の心臓部</div>
+    <div class="title-sub">
+      素数を「どこまで数えれば、もう十分と言えるか」。その問いに正面から答えるために、まず借りてくるのが湯川秀樹の発想です。
+      無限に長く尾を引く力の代わりに、「ある距離の外側ではほとんど何も起きない場」を導入する。
+      この湯川ポテンシャルの世界観があるからこそ、素数の世界にも「ここまで見れば、その先は静かだ」という境界線を一本引くことができます。
+      その境界線をつくる仕掛けが、このデモで見える核であり、のちに素数計算OSの心臓部になる部分です。
+      そして、この「有限な範囲だけで言い切る」という考え方を、僕らはあとで<strong>有限閉包</strong>と呼びます。
+    </div>
+  </div>
+
+  <!-- ステップガイド -->
+  <div class="step-guide">
+    <div class="step-card">
+      <span class="step-num">STEP 1</span>
+      <span class="step-text">場：Yukawa ポテンシャルで「どこまで影響を許すか」を決める</span>
+    </div>
+    <div class="step-card">
+      <span class="step-num">STEP 2</span>
+      <span class="step-text">級数：その場の上で誤差に名前を付け、ε_safe まで責任を取る</span>
+    </div>
+    <div class="step-card">
+      <span class="step-num">STEP 3</span>
+      <span class="step-text">台帳：どこまで見たかを行ごとに残す「科学の良心」の記録</span>
+    </div>
+  </div>
+
+  <!-- 理論パイプライン -->
+  <div class="theory-pipeline">
+    <div class="pipeline-label">THEORY FLOW:</div>
+    <span>Yukawa ポテンシャル</span>
+    <div class="pipeline-arrow">↓</div>
+    <span>Yukawa×Fejér 有限閉包</span>
+    <div class="pipeline-arrow">↓</div>
+    <span>Σ₁ 台帳（GhostDrift ADIC）</span>
+  </div>
+
+  <!-- セクション1 -->
+  <div class="section-header">
+    <div class="section-title">1. 世界の見え方の違い</div>
+    <div class="section-desc">
+      左右同じ <span class="highlight-text">μ（到達距離）</span>で勝負してください。<br>
+      左は教科書でおなじみの 1/r、右は湯川が導入した $V(r)=e^{-\mu r}/r$ です。<br>
+      1/r の世界では、どれだけパラメータをいじっても「完全な静寂（0）」にはなりません。<br>
+      Yukawa ポテンシャルの世界では、ある半径の外側に「本当にほとんど何も起きない領域」が現れます。<br>
+      この「有限な静けさ」を、そのまま有限閉包OSの設計原理にしている、というのがこのデモの出発点です。
+    </div>
+  </div>
+
+  <div class="section-controls">
+    <div class="control-bar">
+      <div class="control-label">μ スライダーで「場がどこまで届くか」を変えてみてください。</div>
+      <div class="control-row">
+        <input type="range" id="mu-slider" min="0.5" max="2.5" step="0.1" value="1.2">
+        <div class="control-value">μ=<span id="mu-value">1.2</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panels">
+    <!-- 左：無限 -->
+    <div class="panel panel-infinite">
+      <div class="panel-head">
+        <span class="panel-label label-inf">従来の物理（無限）</span>
+        <span class="panel-msg">1/r の波紋<br>無限遠まで残る</span>
+      </div>
+      <div class="canvas-box">
+        <canvas id="cvs-field-inf"></canvas>
+        <div class="overlay-badge">影響：無限</div>
+      </div>
+    </div>
+    <!-- 右：有限 -->
+    <div class="panel panel-finite">
+      <div class="panel-head">
+        <span class="panel-label label-fin">GhostDrift（有限）</span>
+        <span class="panel-msg">Yukawa ポテンシャル<br>急激に減衰</span>
+      </div>
+      <div class="canvas-box">
+        <canvas id="cvs-field-fin"></canvas>
+        <div class="overlay-badge">影響：有限で停止</div>
+      </div>
+      <!-- ゴール明示 -->
+      <div class="goal-caption">破線の円より外側では、Yukawa の力は「0 とみなせる」まで落ちます。</div>
+    </div>
+  </div>
+
+  <!-- セクション2 -->
+  <div class="section-header">
+    <div class="section-title">2. 計算量の違い</div>
+    <div class="section-desc">
+      有限閉包の本当の難しさは、ただ途中で切ることではなく、
+      <span class="highlight-text">「どこで切れば真値から外れないか」</span>を数学の側で言い切ることにあります。<br>
+      湯川が場の直観を方程式にまで落とし込んだように、
+      ここでは「有限に届く場」のイメージを、そのまま誤差不等式 $\varepsilon \le \varepsilon_{\text{safe}}$ に変換しています。
+    </div>
+  </div>
+
+  <div class="sec2-controls">
+    <div class="sec2-ctrl-label">
+      スライダーで有限窓 N を動かして、誤差が <span class="highlight-text">ε_safe = 0.02</span> を下回るかどうかを体験してください。
+    </div>
+    <div class="sec2-ctrl-row">
+      <div class="kernel-mode-row">
+        <div class="kernel-mode-label">カーネル</div>
+        <select id="kernel-select" class="kernel-select">
+          <option value="naive">Naive cut（ただ途中で切る）</option>
+          <option value="gauss">Gaussian（なめらかに減衰）</option>
+          <option value="fejer">Fejér-only（解析的にはきれい）</option>
+          <option value="yukawa">Yukawa-only（物理的に有限作用）</option>
+          <option value="yukawaFejer" selected>Yukawa×Fejér（有限閉包カーネル）</option>
+        </select>
+      </div>
+      
+      <div class="sec2-slider">
+        <input type="range" id="cutoff-slider" min="5" max="40" value="16">
+        <div class="sec2-slider-value">N=<span id="cutoff-value">16</span><br>ε_safe=0.02</div>
+      </div>
+    </div>
+    
+    <!-- 3条件ランプ -->
+    <div class="cond-lamps">
+      <div class="cond-lamp cond-ok" id="lamp-range">
+        <span class="cond-dot"></span>
+        <span class="cond-label">有限作用</span>
+      </div>
+      <div class="cond-lamp cond-fail" id="lamp-truth">
+        <span class="cond-dot"></span>
+        <span class="cond-label">真値保証</span>
+      </div>
+      <div class="cond-lamp cond-fail" id="lamp-sigma">
+        <span class="cond-dot"></span>
+        <span class="cond-label">Σ₁ 台帳化</span>
+      </div>
+    </div>
+    
+    <!-- 奥義注釈と上級者ボタン -->
+    <div class="poincare-note">
+      <div>
+        ※ Yukawa×Fejér は、解析世界をポアンカレ的に『有限な宇宙』として閉じてからでないと出てこない特異点です。<br>
+        無限の先まで責任を負うのではなく、「ここまでを見る」と宇宙の大きさを決めたうえで、<br>
+        その範囲の中だけは誤魔化さずに証明する──湯川的な「科学と良心」の位置決めを、そのまま数式にしたものです。
+      </div>
+      <div class="expert-btn-group">
+        <button class="expert-btn" id="expert-open-btn">なぜ困難だったのか？</button>
+        <button class="expert-btn expert-btn-sub" id="yukawa-open-btn">有限性と湯川秀樹</button>
+      </div>
+    </div>
+
+    <div class="sec2-error-row">
+      <div>Naive 誤差：<span id="err-naive" class="error-value error-unsafe">--</span></div>
+      <div>有限閉包 誤差：<span id="err-finite" class="error-value">--</span></div>
+    </div>
+  </div>
+
+  <div class="panels">
+    <!-- 左：無限級数 -->
+    <div class="panel panel-infinite">
+      <div class="panel-head">
+        <span class="panel-label label-inf">Naive Cut</span>
+        <span class="panel-msg">どこまでいっても余剰成分 E_X が<br>消えずに残り続ける</span>
+      </div>
+      <div class="canvas-box">
+        <canvas id="cvs-series-inf"></canvas>
+        <div class="overlay-badge">誤差が消えない</div>
+      </div>
+    </div>
+    <!-- 右：有限閉包 -->
+    <div class="panel panel-finite">
+      <div class="panel-head">
+        <span class="panel-label label-fin">Selected</span>
+        <span class="panel-msg">有限閉包カーネル設計<br>条件を満たせるか？</span>
+      </div>
+      <div class="canvas-box">
+        <canvas id="cvs-series-fin"></canvas>
+        <div class="overlay-badge">ここで閉じる</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- セクション3 -->
+  <div class="section-header">
+    <div class="section-title">3. 証明の簡潔さ</div>
+    <div class="section-desc">
+      有限閉包が成立したときだけ、この台帳が動き出します。<br>
+      「途中で切りました。でも大丈夫そうです」という感覚的な判断では、
+      そもそも整数証明（Σ₁）の土俵にすら上がれません。<br>
+      湯川が核力を「有限距離に閉じ込めた場」で書き直したように、
+      ここでは解析と誤差を「有限個の整数不等式」に閉じ込め、その全部を記録として残します。
+    </div>
+  </div>
+
+  <div class="panels panels-single">
+    <!-- 初期状態はロックされている -->
+    <div class="panel panel-finite ledger-panel locked" id="ledger-panel">
+      <div class="panel-head">
+        <span class="panel-label label-led">Σ₁ 台帳</span>
+        <span class="panel-msg">GhostDrift ADIC 形式<br>有限窓内を整数チェックするだけでOK</span>
+      </div>
+
+      <!-- 台帳コンテキスト -->
+      <div class="ledger-context">
+        この台帳は、<span class="highlight-poincare">有限閉包</span> → 
+        <span class="highlight-kernel">Yukawa×Fejér</span> → 
+        <span class="highlight-sigma">有理数上下界</span><br>
+        という 3 つの断絶をすべて越えた先に現れる「良心の帳簿」です。<br>
+        一度決めた有限窓の中だけを見て、そこでの主項と誤差をすべて整数で数え上げ、<br>
+        「この行数までは本当に自分で見た」という事実だけを Σ₁ として残します。
+      </div>
+
+      <div class="comparison-area">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>条件</th>
+              <th>従来</th>
+              <th>GhostDrift</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>有限距離で影響停止</td>
+              <td><span class="status-mid">△</span></td>
+              <td><span class="status-ok">◎</span></td>
+            </tr>
+            <tr>
+              <td>真値を外から保証</td>
+              <td><span class="status-ng">×</span></td>
+              <td><span class="status-ok">◎</span></td>
+            </tr>
+            <tr>
+              <td>証明が Σ₁（整数）</td>
+              <td><span class="status-ng">×</span></td>
+              <td><span class="status-ok">◎</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="ledger-wrap">
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th>step</th>
+              <th class="num-col">寄与(int)</th>
+              <th class="num-col">累積和</th>
+              <th class="num-col">安全上界</th>
+              <th class="num-col">余裕 δ</th>
+              <th>判定</th>
+            </tr>
+          </thead>
+          <tbody id="ledger-tbody">
+            <!-- JSで動的に生成 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-msg">
+    無限を前提にしなくても、世界は記述できる。<br>
+    どこまで届く場にするかを決め、その範囲だけは誤魔化さずに責任を取る。<br>
+    場の有限性と科学の良心という湯川のラインを、計算と証明の側に引き継いだものが GhostDrift です。
+  </div>
+
+</div>
+
+<!-- 上級者向けモーダル -->
+<div class="modal-overlay" id="expert-modal">
+  <div class="modal-content">
+    <button class="modal-close" id="expert-close-btn">&times;</button>
+    <div class="modal-header">解析的数論から見た Yukawa×GhostDrift 有限閉包の特異性</div>
+    <div class="modal-body">
+      <p>
+        解析屋の目線で言うと、このデモでやっていることは「ふつうの明示公式＋テスト関数設計」の延長ではまず辿り着けない、三つ組の問題を同時に解いています。<br>
+        物理側でいえば、湯川が「無限に届く力学」から「有限に届く場」へと世界像を切り替えたのと同じことを、リーマン世界と誤差評価、そして OS の設計に対してまとめてやっているイメージです。
+      </p>
+
+      <div class="modal-section">
+        <div class="modal-section-title"><span class="modal-tag">問題①</span> カーネル設計の限界</div>
+        <p>古典的な明示公式では、テスト関数 $\phi$ / カーネル $K$ の設計で次を同時に満たそうとします：</p>
+        <ol>
+          <li>実空間で局所化している（遠くは効かない）</li>
+          <li>フーリエ側で扱いやすい</li>
+          <li>一方向の不等式（“外側からの”真値保証）に使える正性構造がある</li>
+        </ol>
+        <div class="modal-math-block">
+          この手法では、Yukawa 側で「物理的な有限作用（一定距離でほぼゼロ）」を確保しつつ、Fejér 側で「フーリエ側の正性と平均化による外側からの真値保証」を確保し、その組み合わせを $\delta_{\mathrm{pos}}$ の一方向下界に落ちる形に“調整”した <strong>Yukawa×Fejér カーネル</strong>として設計しています。
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title"><span class="modal-tag">問題②</span> リーマン世界の「有限閉包」</div>
+        <p>通常の明示公式は、無限ストリップや無限遠の境界条件を前提にした「非コンパクトな解析世界」の上で書かれています。ここから「有限個の整数不等式に全部落とす」こと自体が、構造的にほぼ不可能でした。</p>
+        <p>ここでやっているのは、<strong>リーマン世界を一度 ポアンカレ的に「有限な宇宙」として閉じてしまう</strong>こと。その有限宇宙の中で Yukawa×Fejér カーネルを 離散ラプラシアンのグリーン関数＋有限窓平均として再解釈し、無限遠境界からの寄与を「そもそも考えないゲーム」にルール変更しています。</p>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title"><span class="modal-tag">問題③</span> 全部を Σ₁ 台帳に落とす</div>
+        <div class="modal-math-block">
+          $$ \delta_{\mathrm{pos}} \ge m_{\hat{K}}(\Delta)\cdot(\text{main} - \text{error}) > 0 $$
+        </div>
+        <p>この手法では、各項（主項・零点和・素数和・窓誤差）ごとにそれぞれ有理数の上下界を与え、最終的に 1 本の Σ₁ 不等式（整数計算だけで検証可能）として記録しています。</p>
+      </div>
+
+      <p>
+        つまり、<strong>「無限解析の世界を出て、湯川型の有限な場の直観と『どこまで責任を負うか』という良心をそのまま背負った“有限閉包 OS” として GhostDrift が真値カーネルを返している」</strong>と胸を張って言える構造になっているのです。
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- 湯川思想モーダル -->
+<div class="modal-overlay" id="yukawa-modal">
+  <div class="modal-content">
+    <button class="modal-close" id="yukawa-close-btn">&times;</button>
+    <div class="modal-header">有限性と湯川秀樹の思想</div>
+    <div class="modal-body">
+      
+      <div class="modal-section">
+        <div class="modal-section-title">東洋的思索と科学――湯川秀樹の世界観の基盤</div>
+        <p>湯川秀樹は幼少より東洋思想に親しみ、孔子よりも老子・荘子を好んだといいます。12歳頃には既に儒教の教えより老荘思想に強く惹かれ、「老荘思想や芭蕉の思想を理論物理学に取りこんだ」のもこの傾向の延長でした[1]。彼は漢詩を愛し、求めに応じて書を書く際には荘子「秋水篇」の有名な一節「知魚楽」（魚の楽しみを知る）を書することが多かったと伝えられます[2]。この荘子の故事は、人間と自然との直観的な共感を示す寓話であり、湯川の根底には科学と詩情、理性と直観の調和を求める東洋的感性が流れていたと言えるでしょう。</p>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">「場」の思想：湯川のフィールド概念とGhostDriftの有限閉包</div>
+        <p>湯川秀樹の物理学上の革新は、従来見過ごされがちだった「場（場所）」や「ものとものの間」への着目から生まれました。この発想転換により、湯川は距離に依存して急激に減衰する核力の存在を説明しました（湯川ポテンシャル: $V(r)=e^{-\mu r}/r$）。実際、湯川ポテンシャルによる力は十分離れた距離では事実上ゼロにまで減衰し、相互作用の影響範囲は有限になります[6][7]。</p>
+        <p>こうした湯川の「場」への洞察は、GhostDrift有限閉包OSのコンセプトと哲学的に響き合うものがあります。GhostDriftでは、解析的な無限の世界を一度「有限な宇宙」として閉じてしまうというアプローチが核になっています[13]。湯川の物理モデルが「遠方では力が消える場」を導入したように、GhostDriftも「遠方（無限領域）の寄与をゼロと見なせる場」を構築しているのです。</p>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">静寂・有限・創造性・永遠性</div>
+        <p>湯川秀樹の思想には、「静けさ」や「有限性」の価値、そして「創造性」への深い洞察が見られます。湯川は静寂の中に身を置き思索することで新たな視界を得ました。GhostDriftは無限の問題を一度立ち止まって有限に区切り直すことで、本質的な真値に集中します。無限の可能性に際限なく飛びつくのではなく、一旦静かに有限の枠組みを定める[16]——そのアプローチには、湯川的な沈着冷静さが感じられます。</p>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">文脈としての湯川思想とGhostDriftの位置づけ</div>
+        <p>GhostDriftを湯川の思想の文脈に位置づけるなら、こう言えるでしょう。すなわちGhostDrift有限閉包OSとは、湯川秀樹が蒔いた思想の種子が、計算機科学という新たな土壌で芽吹いた一つの花であると。</p>
+      </div>
+
+      <div class="modal-ref-list">
+        <strong>参考文献・出典：</strong>
+        <ul>
+          <li>[1] 湯川秀樹『旅人―ある物理学者の回想』(自伝, 1961年)</li>
+          <li>[2] その他、湯川秀樹記念館資料等</li>
+          <li>[3] 湯川秀樹『現代科学と人間』(講演, 1961年) 等</li>
+          <li>[4] 湯川秀樹『自然と理性』(随筆集, 1947年) 所収「静かに思う」</li>
+          <li>[6][7][13][14][15] GhostDrift有限閉包OS デモ資料</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * 共通：フィールド（波紋）描画クラス
+ * 白地キャンバス用に色調整
+ */
+function createField(id, opts) {
+  const canvas = document.getElementById(id);
+  const ctx = canvas.getContext('2d');
+  
+  let w, h, cx, cy, maxR;
+  const rings = 12;
+  const dots = 60;
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    w = rect.width;
+    h = rect.height;
+    cx = w / 2;
+    cy = h / 2;
+    maxR = Math.min(w, h) * 0.42; // スマホ用に少し余白を持たせる
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw(t) {
+    // 背景：白〜薄いグレーの円形グラデーション（枯山水的な静けさ）
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR*1.5);
+    grad.addColorStop(0, '#ffffff');
+    grad.addColorStop(1, '#f0f0f5');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    // グリッド線（星図的表現）
+    ctx.strokeStyle = 'rgba(0,0,0,0.03)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, cy); ctx.lineTo(w, cy);
+    ctx.moveTo(cx, 0); ctx.lineTo(cx, h);
+    ctx.stroke();
+
+    const pulse = 1 + Math.sin(t * 2) * 0.05;
+    ctx.beginPath();
+    ctx.arc(cx, cy, maxR * 0.15 * pulse, 0, Math.PI*2);
+    ctx.fillStyle = opts.coreColor;
+    ctx.fill();
+
+    // 有限の境界線（あれば）
+    if (opts.cutoff) {
+      const muFactor = opts.mu ? Math.max(0.3, 1.2 / opts.mu) : 1;
+      const cutoffR = maxR * opts.cutoff * muFactor;
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, cutoffR, 0, Math.PI*2);
+      ctx.strokeStyle = 'rgba(30, 63, 102, 0.3)';
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      
+      ctx.beginPath();
+      ctx.arc(cx, cy, maxR*2, 0, Math.PI*2);
+      ctx.arc(cx, cy, cutoffR, 0, Math.PI*2, true);
+      ctx.fillStyle = 'rgba(0,0,0,0.05)';
+      ctx.fill();
+    }
+
+    for (let i = 1; i <= rings; i++) {
+      const baseR = (i / rings) * maxR;
+      const rNorm = i / rings; 
+      let amp = opts.ampFunc(rNorm, opts.mu || 1); 
+      
+      for (let j = 0; j < dots; j++) {
+        const angle = (j / dots) * Math.PI * 2 + t * 0.1;
+        const wave = Math.sin(rNorm * 10 - t * 3);
+        const r = baseR + wave * (maxR * 0.05) * amp;
+        const x = cx + Math.cos(angle) * r;
+        const y = cy + Math.sin(angle) * r;
+        
+        // 粒子のサイズと色（インクのような濃い色）
+        const size = 1.5 * (amp + 0.5);
+        const alpha = 0.4 + 0.6 * amp;
+
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(0, size), 0, Math.PI*2);
+        ctx.fillStyle = `rgba(${opts.dotColor}, ${alpha})`;
+        ctx.fill();
+      }
+    }
+  }
+
+  function setMu(mu) {
+    opts.mu = mu;
+  }
+
+  return { draw, setMu };
+}
+
+/**
+ * 共通：グラフ（棒グラフ）描画クラス
+ */
+function createGraph(id, opts) {
+  const canvas = document.getElementById(id);
+  const ctx = canvas.getContext('2d');
+  
+  let w, h;
+  const bars = 30; // スマホ向けに本数を減らして見やすく
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    w = rect.width;
+    h = rect.height;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw(t) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+
+    const groundY = h * 0.8;
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath();
+    ctx.moveTo(0, groundY);
+    ctx.lineTo(w, groundY);
+    ctx.stroke();
+
+    const barW = w / bars;
+    const shift = opts.scroll ? (t * 2) % 1 : 0;
+
+    for (let i = 0; i < bars; i++) {
+      let idx = i + shift;
+      let val = 0;
+      if (typeof window.kernelGraphFn === 'function' && id === 'cvs-series-fin') {
+        val = window.kernelGraphFn(idx);
+      } else {
+        val = opts.valFunc(idx, bars);
+      }
+
+      const x = i * barW;
+      const barH = val * (h * 0.6);
+      const y = groundY - barH;
+
+      const alpha = 0.5 + val * 0.5;
+      ctx.fillStyle = `rgba(${opts.color}, ${alpha})`;
+      ctx.fillRect(x + 1, y, barW - 2, barH);
+    }
+
+    if (window.currentN) {
+      const N_MIN = 5;
+      const N_MAX = 40;
+      // スマホ用にスケール調整
+      const ratio = Math.min(1, Math.max(0, (window.currentN - N_MIN) / (N_MAX - N_MIN)));
+      const nX = ratio * w;
+      ctx.beginPath();
+      ctx.moveTo(nX, 0);
+      ctx.lineTo(nX, h);
+      ctx.strokeStyle = 'rgba(30, 63, 102, 0.5)';
+      ctx.setLineDash([2, 2]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+  return { draw };
+}
+
+// --- メイン処理 ---
+window.onload = () => {
+  const t0 = performance.now();
+
+  const f1 = createField('cvs-field-inf', {
+    coreColor: '#1e3f66',
+    dotColor: '30, 63, 102',
+    cutoff: null,
+    ampFunc: (r, mu) => 1 / (1 + r * (3 + mu * 0.5))
+  });
+
+  const f2 = createField('cvs-field-fin', {
+    coreColor: '#6a4c9c',
+    dotColor: '106, 76, 156',
+    cutoff: 0.6,
+    ampFunc: (r, mu) => Math.exp(-r * (4 + mu * 6))
+  });
+
+  const g1 = createGraph('cvs-series-inf', {
+    color: '30, 63, 102',
+    scroll: true,
+    valFunc: (i) => 1 / (1 + Math.log(i + 1))
+  });
+
+  let finiteCutoffN = 16;
+  const g2 = createGraph('cvs-series-fin', {
+    color: '106, 76, 156',
+    scroll: false,
+    cutoffIdx: 25,
+    valFunc: (i) => Math.exp(-i * 0.05)
+  });
+
+  // μ スライダー連動
+  const muSlider = document.getElementById('mu-slider');
+  const muValue = document.getElementById('mu-value');
+  if (muSlider && muValue) {
+    const updateMu = () => {
+      const mu = parseFloat(muSlider.value);
+      muValue.textContent = mu.toFixed(1);
+      f1.setMu(mu);
+      f2.setMu(mu);
+    };
+    muSlider.addEventListener('input', updateMu);
+    updateMu();
+  }
+
+  // カットオフ N・カーネル・誤差・台帳ロック
+  const EPS_SAFE = 0.02;
+  let finiteSafeUnlocked = false;
+  let kernelMode = "yukawaFejer";
+
+  const ledgerPanel = document.getElementById("ledger-panel");
+  const cutoffSlider = document.getElementById("cutoff-slider");
+  const cutoffValue  = document.getElementById("cutoff-value");
+  const errNaiveEl   = document.getElementById("err-naive");
+  const errFiniteEl  = document.getElementById("err-finite");
+  const ledgerTbody = document.getElementById('ledger-tbody');
+
+  const kernelSelect = document.getElementById("kernel-select");
+  const lampRange = document.getElementById("lamp-range");
+  const lampTruth = document.getElementById("lamp-truth");
+  const lampSigma = document.getElementById("lamp-sigma");
+
+  const kernelProfiles = {
+    naive: { finite: "ok", truth: "fail", sigma: "fail" },
+    gauss: { finite: "partial", truth: "fail", sigma: "fail" },
+    fejer: { finite: "partial", truth: "ok", sigma: "partial" },
+    yukawa: { finite: "ok", truth: "partial", sigma: "partial" },
+    yukawaFejer: { finite: "ok", truth: "ok", sigma: "ok" }
+  };
+
+  function applyLampState(el, state) {
+    if (!el) return;
+    el.classList.remove("cond-ok", "cond-partial", "cond-fail");
+    if (state === "ok") el.classList.add("cond-ok");
+    else if (state === "partial") el.classList.add("cond-partial");
+    else el.classList.add("cond-fail");
+  }
+
+  function naiveError(N) {
+    const x = N;
+    return 0.16 + 0.06 * Math.sin(x * 0.7) + 0.03 * Math.cos(x * 0.3);
+  }
+  function gaussError(N) {
+    const x = Math.max(0, N - 5);
+    return 0.14 + 0.05 * Math.exp(-x / 15); 
+  }
+  function fejerError(N) {
+    const x = Math.max(0, N - 8);
+    return 0.06 + 0.04 * Math.abs(Math.sin(x * 0.4)); 
+  }
+  function yukawaOnlyError(N) {
+    const x = Math.max(0, N - 6);
+    return 0.05 + 0.03 * Math.exp(-x / 10); 
+  }
+  function yukawaFejerError(N) {
+    const x = Math.max(0, N - 6);
+    return 0.4 * Math.exp(-x / 6); 
+  }
+
+  function kernelError(N) {
+    switch (kernelMode) {
+      case "naive":       return naiveError(N);
+      case "gauss":       return gaussError(N);
+      case "fejer":       return fejerError(N);
+      case "yukawa":      return yukawaOnlyError(N);
+      case "yukawaFejer": return yukawaFejerError(N);
+      default:            return naiveError(N);
+    }
+  }
+
+  window.kernelGraphFn = function(i) {
+    switch (kernelMode) {
+      case "naive": return 1 / (1 + Math.log(i + 1));
+      case "gauss": return Math.exp(-Math.pow(i/15, 2));
+      case "fejer": return Math.max(0, 1 - i/30);
+      case "yukawa": return Math.exp(-i * 0.15);
+      case "yukawaFejer": 
+        if (i > 25) return Math.exp(-(i-25))*0.1;
+        return Math.exp(-i * 0.05);
+      default: return Math.exp(-i * 0.05);
+    }
+  };
+
+  function buildLedgerOnce() {
+    if (finiteSafeUnlocked || !ledgerTbody) return;
+    finiteSafeUnlocked = true;
+    
+    if (ledgerPanel) {
+      ledgerPanel.classList.remove('locked');
+      ledgerPanel.classList.add('ledger-unlocked-anim');
+    }
+    
+    ledgerTbody.innerHTML = '';
+    let sum = 0;
+    const maxStep = 8;
+    for (let k = 1; k <= maxStep; k++) {
+      const val = k * 2 + 1;
+      sum += val;
+      const limit = sum + (10 - k) * 5;
+      const margin = limit - sum;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${k}</td>
+        <td class="num-col">${val}</td>
+        <td class="num-col">${sum}</td>
+        <td class="num-col">${limit}</td>
+        <td class="num-col">+${margin}</td>
+        <td><span class="check-ok">✔</span></td>
+      `;
+      ledgerTbody.appendChild(tr);
+    }
+  }
+
+  function updateCutoff() {
+    if (!cutoffSlider) return;
+
+    const N = parseInt(cutoffSlider.value, 10);
+    window.currentN = N; 
+
+    if (cutoffValue) {
+      cutoffValue.textContent = String(N);
+    }
+
+    const eNaive  = naiveError(N);
+    const eFinite = kernelError(N);
+
+    if (errNaiveEl) {
+      errNaiveEl.textContent = eNaive.toFixed(3);
+      errNaiveEl.classList.remove("error-safe", "error-unsafe");
+      errNaiveEl.classList.add(eNaive <= EPS_SAFE ? "error-safe" : "error-unsafe");
+    }
+    if (errFiniteEl) {
+      errFiniteEl.textContent = eFinite.toFixed(3);
+      errFiniteEl.classList.remove("error-safe", "error-unsafe");
+      errFiniteEl.classList.add(eFinite <= EPS_SAFE ? "error-safe" : "error-unsafe");
+    }
+
+    // ランプ制御
+    const profile = kernelProfiles[kernelMode] || kernelProfiles.naive;
+    
+    applyLampState(lampRange, profile.finite);
+
+    if (profile.truth === 'ok' && eFinite <= EPS_SAFE) {
+      applyLampState(lampTruth, 'ok');
+      
+      if (profile.sigma === 'ok') {
+        applyLampState(lampSigma, 'ok');
+        buildLedgerOnce();
+      } else {
+        applyLampState(lampSigma, 'partial');
+      }
+    } else {
+      applyLampState(lampTruth, profile.truth === 'ok' ? 'fail' : profile.truth);
+      applyLampState(lampSigma, 'fail');
+    }
+
+    if (!(profile.sigma === 'ok' && eFinite <= EPS_SAFE)) {
+      if (finiteSafeUnlocked) {
+        finiteSafeUnlocked = false;
+        if (ledgerPanel) {
+          ledgerPanel.classList.add("locked");
+          ledgerTbody.innerHTML = '';
+        }
+      }
+    }
+  }
+
+  if (kernelSelect) {
+    kernelMode = kernelSelect.value || "yukawaFejer";
+    kernelSelect.addEventListener("change", () => {
+      kernelMode = kernelSelect.value || "naive";
+      finiteSafeUnlocked = false;
+      if (ledgerPanel) {
+        ledgerPanel.classList.add("locked");
+        if(ledgerTbody) ledgerTbody.innerHTML = '';
+      }
+      updateCutoff();
+    });
+  }
+
+  if (cutoffSlider) {
+    cutoffSlider.addEventListener("input", updateCutoff);
+  }
+
+  function loop() {
+    const t = (performance.now() - t0) / 1000;
+    f1.draw(t);
+    f2.draw(t);
+    g1.draw(t);
+    g2.draw(t);
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  updateCutoff();
+
+  // 台帳ハイライト
+  let rowIdx = 0;
+  setInterval(() => {
+    if (!ledgerTbody || !ledgerTbody.children.length) return;
+    const rows = ledgerTbody.querySelectorAll('tr');
+    rows.forEach(r => r.classList.remove('active-row'));
+    if (rows[rowIdx]) rows[rowIdx].classList.add('active-row');
+    rowIdx = (rowIdx + 1) % rows.length;
+  }, 800);
+
+  // モーダル制御
+  const setupModal = (btnId, modalId, closeId) => {
+    const btn = document.getElementById(btnId);
+    const modal = document.getElementById(modalId);
+    const close = document.getElementById(closeId);
+    if(btn && modal && close) {
+      btn.addEventListener('click', () => modal.classList.add('open'));
+      close.addEventListener('click', () => modal.classList.remove('open'));
+      modal.addEventListener('click', (e) => {
+        if(e.target === modal) modal.classList.remove('open');
+      });
+    }
+  };
+
+  setupModal('expert-open-btn', 'expert-modal', 'expert-close-btn');
+  setupModal('yukawa-open-btn', 'yukawa-modal', 'yukawa-close-btn');
+};
+</script>
+
+</body>
+</html>
