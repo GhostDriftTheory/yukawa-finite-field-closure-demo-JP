@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>GhostDrift: 湯川ポテンシャルと有限閉包OS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>湯川ポテンシャルと有限閉包：素数計算OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <!-- MathJax -->
   <script>
@@ -34,6 +34,7 @@
       --gold: #c7a65d;
       --card-shadow: 0 4px 20px rgba(0,0,0,0.06);
       --hover-shadow: 0 8px 30px rgba(30,63,102,0.12);
+      --radius-std: 12px;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -46,6 +47,7 @@
       line-height: 1.9;
       background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
       background-size: 30px 30px;
+      -webkit-text-size-adjust: 100%;
     }
 
     .wrapper {
@@ -53,55 +55,56 @@
       margin: 0 auto;
       padding: 40px 24px 100px;
     }
-    @media (max-width: 600px) { .wrapper { padding: 30px 16px 80px; } }
+    @media (max-width: 600px) { 
+      .wrapper { padding: 24px 16px 80px; } 
+    }
 
     /* Header */
     header {
       text-align: center;
-      margin-bottom: 60px;
+      margin-bottom: 40px;
       position: relative;
     }
 
-    /* Product Link Card */
+    /* Product Link Card - Mobile Optimized */
     .product-card {
       display: inline-flex;
       align-items: center;
       justify-content: space-between;
       background: #fff;
       border: 1px solid rgba(199, 166, 93, 0.3);
-      border-radius: 12px;
+      border-radius: var(--radius-std);
       padding: 12px 20px;
       margin-bottom: 24px;
       text-decoration: none;
       box-shadow: 0 2px 10px rgba(0,0,0,0.03);
       transition: all 0.3s ease;
-      max-width: 100%;
       width: auto;
+      max-width: 100%;
       gap: 12px;
     }
-    .product-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--hover-shadow);
-      border-color: var(--gold);
-    }
-    .pc-icon { color: var(--gold); font-size: 20px; }
+    .product-card:active { transform: scale(0.98); }
+    .pc-icon { color: var(--gold); font-size: 24px; }
     .pc-content { text-align: left; display: flex; flex-direction: column; }
     .pc-label { font-size: 10px; color: var(--text-sub); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
-    .pc-title { font-size: 14px; font-weight: 700; color: var(--accent); font-family: "Zen Old Mincho", serif; }
-    .pc-arrow { color: var(--text-light); font-size: 14px; transition: transform 0.3s; }
-    .product-card:hover .pc-arrow { transform: translateX(4px); color: var(--gold); }
+    .pc-title { font-size: 15px; font-weight: 700; color: var(--accent); font-family: "Zen Old Mincho", serif; }
+    .pc-arrow { color: var(--text-light); font-size: 18px; }
+    
+    @media (max-width: 600px) {
+      .product-card { width: 100%; padding: 16px; }
+    }
 
     h1 {
       font-family: "Zen Old Mincho", serif;
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 700;
-      letter-spacing: 0.05em;
-      margin: 10px 0 20px;
+      letter-spacing: 0.02em;
+      margin: 10px 0 16px;
       color: var(--accent);
       line-height: 1.4;
     }
     .subtitle {
-      font-size: 15px;
+      font-size: 14px;
       color: var(--text-sub);
       max-width: 600px;
       margin: 0 auto;
@@ -110,156 +113,172 @@
       line-height: 1.8;
     }
     @media (max-width: 600px) {
-      h1 { font-size: 24px; margin-top: 10px; }
+      h1 { font-size: 24px; text-align: left; }
       .subtitle { font-size: 13px; text-align: left; text-align-last: left; }
-      .product-card { width: 100%; }
     }
 
-    /* Theory Flow */
+    /* Theory Flow - Scrollable on Mobile */
     .flow-container {
       display: flex;
       justify-content: center;
-      gap: 12px;
-      margin-bottom: 50px;
+      gap: 8px;
+      margin-bottom: 40px;
       flex-wrap: wrap;
     }
     .flow-item {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--text-sub);
       background: #fff;
-      padding: 8px 16px;
+      padding: 6px 12px;
       border-radius: 50px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.03);
       border: 1px solid rgba(0,0,0,0.05);
       display: flex;
       align-items: center;
+      white-space: nowrap;
     }
-    .flow-arrow { color: var(--gold); align-self: center; font-size: 12px; }
+    .flow-arrow { color: var(--gold); align-self: center; font-size: 10px; }
+    @media (max-width: 600px) {
+      .flow-container { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding-bottom: 4px; }
+      .flow-container::-webkit-scrollbar { display: none; }
+    }
+
+    /* Tutorial Card */
+    .tutorial-card {
+      margin: 0 0 40px;
+      background: #fff;
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-std);
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(30,63,102,0.08);
+    }
+    .tutorial-card .sec-head { border: none; padding: 0; margin: 0; }
+    .tutorial-card .sec-title { color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .tutorial-card .sec-title::before { content: 'touch_app'; font-family: 'Material Icons Round'; font-size: 20px; }
+    .tutorial-card ol { padding-left: 20px; margin: 0; font-size: 14px; color: var(--text-ink); }
+    .tutorial-card li { margin-bottom: 8px; line-height: 1.6; }
+    .tutorial-card li:last-child { margin-bottom: 0; }
 
     /* Sections */
-    section { margin-bottom: 80px; }
+    section { margin-bottom: 60px; }
     .sec-head {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       border-left: 4px solid var(--accent);
-      padding-left: 16px;
+      padding-left: 12px;
     }
     .sec-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
       color: var(--text-ink);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
-    .sec-desc { font-size: 14px; color: var(--text-sub); }
+    .sec-desc { font-size: 14px; color: var(--text-sub); line-height: 1.8; text-align: justify; }
 
-    /* Controls & Visualization Container */
+    /* Vis Container */
     .vis-container {
       background: #fff;
       border: 1px solid rgba(0,0,0,0.08);
-      border-radius: 12px;
-      padding: 24px;
+      border-radius: var(--radius-std);
+      padding: 20px;
       box-shadow: var(--card-shadow);
     }
-    @media (max-width: 600px) { .vis-container { padding: 16px; } }
+    @media (max-width: 600px) { .vis-container { padding: 16px; margin: 0 -8px; width: calc(100% + 16px); border-radius: 0; border-left: none; border-right: none; } }
 
-    /* Control Rows */
+    /* Controls */
     .ctrl-group { margin-bottom: 24px; }
     .ctrl-label {
       display: flex; justify-content: space-between; align-items: center;
-      font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 10px;
+      font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 12px;
     }
     
-    /* Custom Slider */
-    input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+    /* Touch-Optimized Slider */
+    input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; height: 30px; /* Touch area */ }
     input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%;
-      background: #fff; border: 2px solid var(--accent); cursor: pointer; margin-top: -10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15); transition: transform 0.1s;
+      -webkit-appearance: none; height: 28px; width: 28px; border-radius: 50%;
+      background: #fff; border: 2px solid var(--accent); cursor: pointer; margin-top: -12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2); transition: transform 0.1s;
     }
     input[type=range]:active::-webkit-slider-thumb { transform: scale(1.1); background: var(--accent-light); }
     input[type=range]::-webkit-slider-runnable-track {
       width: 100%; height: 4px; cursor: pointer; background: #e0e0e0; border-radius: 2px;
     }
-    .val-display { font-family: monospace; font-size: 14px; color: var(--accent); }
+    .val-display { 
+      font-family: monospace; font-size: 14px; color: var(--accent); background: var(--accent-light);
+      padding: 2px 8px; border-radius: 4px;
+    }
 
     /* Panels Grid */
-    .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
-    @media (max-width: 600px) { .panels { gap: 10px; } }
+    .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    @media (max-width: 600px) { .panels { gap: 8px; } }
 
     .panel-box {
       position: relative; border: 1px solid #eee; border-radius: 8px; overflow: hidden; background: #fafafa;
     }
     .panel-tag {
-      position: absolute; top: 8px; left: 8px; font-size: 10px; font-weight: 700;
-      padding: 4px 10px; background: rgba(255,255,255,0.95); border-radius: 4px;
-      color: var(--text-sub); z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,0.1); backdrop-filter: blur(2px);
+      position: absolute; top: 6px; left: 6px; font-size: 10px; font-weight: 700;
+      padding: 3px 8px; background: rgba(255,255,255,0.95); border-radius: 4px;
+      color: var(--text-sub); z-index: 2; box-shadow: 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(2px);
     }
-    canvas { display: block; width: 100%; height: 220px; }
-    @media (max-width: 600px) { canvas { height: 160px; } }
+    canvas { display: block; width: 100%; height: 200px; }
+    @media (max-width: 600px) { canvas { height: 150px; } }
 
     /* Guide Notch */
     .guide-notch {
-      margin-top: 16px; background: var(--accent-light); padding: 16px; border-radius: 8px;
-      font-size: 13px; color: var(--text-ink); line-height: 1.7; border-left: 4px solid var(--accent);
+      margin-top: 16px; background: var(--accent-light); padding: 14px; border-radius: 8px;
+      font-size: 12px; color: var(--text-ink); line-height: 1.6; border-left: 3px solid var(--accent);
     }
     .guide-notch strong { color: var(--accent); }
 
-    /* Ledger Guide */
-    .ledger-guide {
-      background: #fff; border: 1px solid #e0e0e0; padding: 12px 16px; border-radius: 8px;
-      margin-bottom: 16px; font-size: 12px; color: var(--text-sub);
-    }
-    .lg-row { display: flex; gap: 12px; align-items: center; margin-bottom: 4px; }
-
-    /* Kernel Selector */
+    /* Tabs */
     .kernel-tabs {
       display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px;
-      -ms-overflow-style: none; scrollbar-width: none;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
     }
     .kernel-tabs::-webkit-scrollbar { display: none; }
     .k-tab {
-      flex: 1; min-width: 90px; padding: 12px; text-align: center; font-size: 12px; font-weight: 600;
+      flex: 1; min-width: 80px; padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600;
       border: 1px solid #e0e0e0; border-radius: 8px; background: #fff; color: var(--text-sub);
-      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap; -webkit-tap-highlight-color: rgba(0,0,0,0.05);
     }
     .k-tab.active {
       background: var(--accent); color: #fff; border-color: var(--accent);
       box-shadow: 0 4px 12px rgba(30,63,102,0.25); transform: translateY(-1px);
     }
+    
     .kernel-message {
-      font-size: 13px; margin: 16px 0; min-height: 3em; display: flex; align-items: flex-start;
+      font-size: 13px; margin: 16px 0; min-height: 3.5em; display: flex; align-items: flex-start;
       background: #fff; padding: 10px; border-radius: 6px; border: 1px dashed #ddd;
     }
-    .km-icon { font-size: 18px; margin-right: 10px; line-height: 1.3; }
-    .km-text { color: var(--text-ink); line-height: 1.5; }
+    .km-icon { font-size: 20px; margin-right: 8px; margin-top: 2px; }
+    .km-text { flex: 1; color: var(--text-ink); line-height: 1.5; }
     .km-text.ok { color: var(--success); font-weight: 700; }
     .km-text.warn { color: #b8860b; }
     .km-text.ng { color: var(--highlight); }
 
-    /* Status Lamps */
+    /* Lamps */
     .status-row {
-      display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #eee;
+      display: flex; gap: 8px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #eee;
     }
     .lamp {
-      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0.3; transition: opacity 0.4s;
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; opacity: 0.3; transition: opacity 0.4s;
     }
     .lamp.active { opacity: 1; }
     .lamp-circle {
-      width: 10px; height: 10px; border-radius: 50%; background: #ccc; position: relative;
+      width: 12px; height: 12px; border-radius: 50%; background: #ccc; position: relative;
     }
     .lamp.ok .lamp-circle { background: var(--success); box-shadow: 0 0 10px var(--success); }
     .lamp.ok .lamp-circle::after {
-      content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid var(--success);
-      animation: pulse 2s infinite;
+      content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid var(--success); animation: pulse 2s infinite;
     }
     @keyframes pulse { 0%{opacity:1;transform:scale(1);} 100%{opacity:0;transform:scale(1.8);} }
     .lamp.ng .lamp-circle { background: var(--highlight); }
     .lamp-label { font-size: 10px; font-weight: 700; white-space: nowrap; color: var(--text-sub); }
 
-    /* Ledger Table */
-    .ledger-container { position: relative; min-height: 200px; transition: all 0.5s; }
+    /* Ledger */
+    .ledger-container { position: relative; min-height: 200px; transition: all 0.5s; overflow: hidden; }
     .ledger-overlay {
-      position: absolute; inset: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px);
+      position: absolute; inset: 0; background: rgba(255,255,255,0.92); backdrop-filter: blur(4px);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       z-index: 10; transition: opacity 0.5s; border-radius: 8px;
     }
@@ -267,85 +286,107 @@
     .lock-icon { font-size: 32px; margin-bottom: 12px; color: var(--text-sub); }
     .lock-text { font-size: 13px; color: var(--text-sub); text-align: center; line-height: 1.6; }
 
-    .ledger-table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: monospace; }
+    .ledger-table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: monospace; white-space: nowrap; }
     .ledger-table th {
       text-align: left; padding: 10px 8px; border-bottom: 2px solid var(--accent);
-      color: var(--accent); font-family: "Shippori Mincho", serif; white-space: nowrap;
+      color: var(--accent); font-family: "Shippori Mincho", serif;
     }
     .ledger-table td { padding: 10px 8px; border-bottom: 1px solid #eee; }
     .col-r { text-align: right; }
     .row-highlight { background: rgba(92,122,71,0.05); }
 
-    /* Expert Buttons */
+    .ledger-guide {
+      background: #fafafa; border: 1px solid #eee; padding: 12px; border-radius: 8px;
+      margin-bottom: 16px; font-size: 12px; color: var(--text-sub);
+    }
+    .lg-row { display: flex; align-items: flex-start; margin-bottom: 4px; line-height: 1.5; }
+
+    /* Footer Buttons - Stacked on Mobile */
     .expert-area {
-      margin-top: 60px; text-align: center; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;
+      margin-top: 60px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;
     }
     .btn-expert {
-      background: #fff; border: 1px solid #ddd; color: var(--text-sub); font-size: 13px;
-      padding: 10px 20px; border-radius: 30px; cursor: pointer; transition: all 0.2s;
-      display: inline-flex; align-items: center; gap: 6px;
+      background: #fff; border: 1px solid #ddd; color: var(--text-sub); font-size: 14px;
+      padding: 14px 24px; border-radius: 30px; cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-width: 220px; /* Ensure wide enough touch target */
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
-    .btn-expert:hover { background: var(--bg-paper); border-color: var(--accent); color: var(--accent); }
+    .btn-expert:active { background: var(--bg-paper); transform: scale(0.98); }
+    @media (max-width: 600px) {
+      .expert-area { flex-direction: column; align-items: stretch; }
+      .btn-expert { width: 100%; }
+    }
 
-    /* Modals - Pro Layout */
+    /* Modals - Mobile Sheet Style */
     .modal-backdrop {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30, 63, 102, 0.7);
       backdrop-filter: blur(4px); z-index: 9999; display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 16px;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
     }
     .modal-backdrop.show { opacity: 1; pointer-events: auto; }
+    
     .modal-card {
       width: 100%; max-width: 800px; max-height: 90vh; background: #fff;
-      box-shadow: 0 25px 80px rgba(0,0,0,0.3); border-radius: 8px; display: flex;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4); border-radius: 12px; display: flex;
       flex-direction: column; overflow: hidden; animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
+    /* Mobile: Full width bottom sheet style */
+    @media (max-width: 600px) {
+      .modal-backdrop { align-items: flex-end; padding: 0; }
+      .modal-card { 
+        max-height: 85vh; border-bottom-left-radius: 0; border-bottom-right-radius: 0; 
+        animation: slideUpMobile 0.3s ease-out;
+      }
+    }
     @keyframes slideUp { from{transform:translateY(30px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+    @keyframes slideUpMobile { from{transform:translateY(100%);} to{transform:translateY(0);} }
     
     .modal-header {
-      padding: 24px 32px; border-bottom: 1px solid #eee; display: flex;
-      justify-content: space-between; align-items: center; background: #fcfcfc; flex-shrink: 0;
+      padding: 20px 24px; border-bottom: 1px solid #eee; display: flex;
+      justify-content: space-between; align-items: flex-start; background: #fcfcfc; flex-shrink: 0;
     }
     .modal-title-group { display: flex; flex-direction: column; }
     .modal-label { 
-      font-size: 11px; font-weight: 700; color: var(--gold); 
+      font-size: 10px; font-weight: 700; color: var(--gold); 
       letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;
     }
-    .modal-title { font-family: "Zen Old Mincho", serif; font-size: 22px; font-weight: 700; color: var(--accent); margin: 0; }
-    .modal-close { font-size: 28px; cursor: pointer; color: #bbb; padding: 4px; transition: color 0.2s; }
-    .modal-close:hover { color: var(--highlight); }
+    .modal-title { font-family: "Zen Old Mincho", serif; font-size: 20px; font-weight: 700; color: var(--accent); margin: 0; line-height: 1.3; }
     
-    .modal-scroll-area { overflow-y: auto; padding: 40px 48px; -webkit-overflow-scrolling: touch; }
+    .modal-close { 
+      font-size: 24px; padding: 8px; margin: -8px -8px 0 0; color: #aaa; 
+      background: rgba(0,0,0,0.03); border-radius: 50%; cursor: pointer; 
+    }
+    
+    .modal-scroll-area { overflow-y: auto; padding: 32px 40px; -webkit-overflow-scrolling: touch; }
     @media (max-width: 600px) { 
       .modal-header { padding: 16px 20px; }
-      .modal-scroll-area { padding: 24px 20px; }
-      .modal-title { font-size: 18px; }
+      .modal-scroll-area { padding: 24px 20px 40px; } /* Extra bottom padding for safe area */
     }
     
-    /* Typography for Long Text */
-    .article-section { margin-bottom: 50px; }
+    /* Typography for Article */
+    .article-section { margin-bottom: 40px; }
     .article-h {
       font-size: 18px; font-weight: 700; color: var(--text-ink); 
-      border-left: 4px solid var(--gold); padding-left: 14px; margin-bottom: 20px; 
+      border-left: 4px solid var(--gold); padding-left: 12px; margin-bottom: 16px; 
       line-height: 1.5; font-family: "Zen Old Mincho", serif;
     }
-    .article-body { font-size: 15px; line-height: 2.1; color: var(--text-ink); text-align: justify; }
-    .article-body p { margin-top: 0; margin-bottom: 24px; }
+    .article-body { font-size: 15px; line-height: 1.9; color: var(--text-ink); text-align: justify; }
+    .article-body p { margin-top: 0; margin-bottom: 20px; }
     
     .ref-list {
-      font-size: 12px; color: #777; margin-top: 40px; border-top: 1px solid #eee; padding-top: 24px;
-      background: #fafafa; padding: 20px; border-radius: 4px;
+      font-size: 12px; color: #666; margin-top: 40px; border-top: 1px solid #eee; padding-top: 24px;
+      background: #fafafa; padding: 16px; border-radius: 8px;
     }
-    .ref-list strong { display: block; margin-bottom: 10px; color: var(--text-sub); }
-    .ref-list ul { padding-left: 20px; margin: 0; }
-    .ref-list li { margin-bottom: 6px; line-height: 1.6; }
+    .ref-list strong { display: block; margin-bottom: 8px; color: var(--text-sub); }
+    .ref-list ul { padding-left: 18px; margin: 0; }
+    .ref-list li { margin-bottom: 6px; line-height: 1.5; }
 
     .tech-step { display: flex; gap: 16px; margin-bottom: 24px; }
     .ts-num {
       flex-shrink: 0; width: 28px; height: 28px; background: var(--accent); color: #fff; border-radius: 50%;
       text-align: center; line-height: 28px; font-weight: 700; font-size: 14px; margin-top: 2px;
     }
-    .ts-content { flex: 1; }
-    .ts-title { font-weight: 700; color: var(--accent); margin-bottom: 8px; display: block; }
     .math-card {
       background: var(--accent-light); padding: 16px; border-radius: 8px; margin: 12px 0;
       font-size: 14px; border-left: 4px solid var(--accent); overflow-x: auto;
@@ -367,10 +408,10 @@
       <div class="pc-arrow"><span class="material-icons-round">arrow_forward</span></div>
     </a>
 
-    <h1>GhostDrift: 湯川ポテンシャルと<br>有限閉包OS</h1>
+    <h1>湯川ポテンシャルと<br>有限閉包：素数計算OS</h1>
     <div class="subtitle">
       無限に続く素数の響きを、いかにして有限の計算機に閉じ込めるか。<br>
-      湯川秀樹の「場の理論」にヒントを得た、文系最前線の「GhostDrift」理論。
+      湯川秀樹の「場の理論」にヒントを得た、文系最前線の「有限閉包」理論。
     </div>
   </header>
 
@@ -381,6 +422,19 @@
     <span class="flow-arrow">→</span>
     <div class="flow-item">Σ₁台帳 (整数証明)</div>
   </div>
+
+  <section class="tutorial-card">
+    <div class="sec-head">
+      <div class="sec-title" style="font-size:16px;">30秒チュートリアル：このデモの使い方</div>
+      <div class="sec-desc">
+        <ol style="padding-left:20px; margin:8px 0;">
+          <li><strong>まず 1 章</strong>で、μ スライダーを動かして「有限 (Yukawa)」の図を見てください。右側の破線の円の外側がまっ白になるように調整できたら OK です。</li>
+          <li><strong>次に 2 章</strong>で、カーネルを <strong>Yukawa-Fejér</strong> にしてから N スライダーを右に動かします。下の 3 つのランプが全部光ったら「有限閉包」が達成された合図です。</li>
+          <li><strong>最後に 3 章</strong>で、ロックが外れた Σ₁台帳を見ます。表の一番右の「判定」が全部 OK になり、$\delta$ 列が全部プラスなら「真値保証つきの安全な世界」ができています。</li>
+        </ol>
+      </div>
+    </div>
+  </section>
 
   <!-- Section 1 -->
   <section>
@@ -425,9 +479,9 @@
     <div class="sec-head">
       <div class="sec-title">2. 打ち切りの美学</div>
       <div class="sec-desc">
-        <strong>「有限窓（$N$）」</strong>とは、無限の世界を覗く「窓の枠（計算範囲）」のこと。<br>
-        <strong>「有限閉包」</strong>とは、その窓の外側を完全に切り捨てても数学的に安全と言える「閉じた状態」のことです。<br>
-        正しい道具（GhostDrift: Yukawa×Fejér）で窓を覗いたときだけ、安全な閉包状態が訪れます。
+        <strong>「有限窓（$N$）」</strong>とは、無限の世界を覗く「窓の枠（計算範囲）」のことです。ざっくり言うと「どこまで計算するかの見える枠」です。<br>
+        <strong>「有限閉包」</strong>とは、その窓の外側を完全に切り捨てても数学的に安全と言える「閉じた状態」のことです。ひとことで言えば「世界を安全に箱の中に閉じ込めた状態」です。<br>
+        正しい道具（Yukawa×Fejér）で窓を覗いたときだけ、この有限閉包が実現します。
       </div>
     </div>
 
@@ -438,7 +492,7 @@
         <div class="kernel-tabs">
           <div class="k-tab" data-mode="naive">Naive (直切)</div>
           <div class="k-tab" data-mode="gauss">Gauss (無限)</div>
-          <div class="k-tab active" data-mode="yf">GhostDrift</div>
+          <div class="k-tab active" data-mode="yf">Yukawa-Fejér</div>
         </div>
         <div class="kernel-message" id="kernel-msg">
           <!-- JSで注入 -->
@@ -468,7 +522,7 @@
       <div class="guide-notch">
         <strong>[図の見方]</strong> <br>
         <strong>[← 窓 N →]</strong> と示した範囲が、私たちが「見る」と決めた有限窓です。<br>
-        この窓の右端で波が静かにゼロになり、<strong>ランプが全て点灯</strong>したとき、初めて「GhostDrift有限閉包（安全な世界）」が完成します。
+        この窓の右端で波が静かにゼロになり、<strong>ランプが全て点灯</strong>したとき、初めて「有限閉包（安全な世界）」が完成します。
       </div>
 
       <div class="status-row">
@@ -494,7 +548,8 @@
     <div class="sec-head">
       <div class="sec-title">3. Σ₁台帳：確定証明リスト</div>
       <div class="sec-desc">
-        有限閉包が成立すると、計算結果は「有限の整数計算」だけで誰でも検算可能な証明リスト（Σ₁: Sigma-One）として出力されます。<br>
+        有限閉包が成立すると、計算結果は「有限の整数計算」だけで誰でも検算可能な証明リストとして出力されます。<br>
+        このリストをここでは<strong>Σ₁台帳</strong>と呼びます。ひとことで言うと「あとからチェックできる確定証明リスト」です。<br>
         無限や誤差の恐怖は、この「安全余白 $\delta$」がプラスである限り、完全に排除されています。
       </div>
     </div>
@@ -506,7 +561,7 @@
         </div>
         <div class="lock-text">
           世界が閉じていません。<br>
-          GhostDriftカーネルで<br>十分な窓サイズ N を確保してください。
+          Yukawa-Fejérカーネルで<br>十分な窓サイズ N を確保してください。
         </div>
       </div>
 
@@ -514,11 +569,15 @@
       <div class="ledger-guide">
         <div class="lg-row">
           <span class="material-icons-round" style="font-size:16px; margin-right:4px; color:var(--accent);">info</span>
-          <strong>見方：</strong> 安全余白 $\delta$ がプラス(+)なら、証明は数学的に「絶対」です。
+          <span><strong>見方：</strong> 安全余白 $\delta$ がプラス(+)なら、証明は数学的に「絶対」です。</span>
+        </div>
+        <div class="lg-row">
+          <span style="width:16px; margin-right:4px;"></span>
+          <span>ここでの $\delta$ は「安全のクッション」のようなものだと思ってください。</span>
         </div>
       </div>
       
-      <div style="overflow-x:auto;">
+      <div style="overflow-x:auto; -webkit-overflow-scrolling: touch;">
         <table class="ledger-table">
           <thead>
             <tr>
@@ -540,11 +599,11 @@
 
   <div class="expert-area">
     <button class="btn-expert" onclick="document.getElementById('modal-yukawa').classList.add('show')">
-      <span class="material-icons-round" style="font-size:18px;">auto_stories</span>
-      湯川思想とGhostDrift
+      <span class="material-icons-round" style="font-size:20px;">auto_stories</span>
+      湯川思想と有限閉包
     </button>
     <button class="btn-expert" onclick="document.getElementById('modal-tech').classList.add('show')">
-      <span class="material-icons-round" style="font-size:18px;">functions</span>
+      <span class="material-icons-round" style="font-size:20px;">functions</span>
       解析的背景 (Expert)
     </button>
   </div>
@@ -557,7 +616,7 @@
     <div class="modal-header">
       <div class="modal-title-group">
         <span class="modal-label">Philosophy</span>
-        <h3 class="modal-title">湯川秀樹の思想的背景と<br>GhostDrift有限閉包OSの接点</h3>
+        <h3 class="modal-title">湯川秀樹の思想的背景と<br>GhostDrift有限閉包の接点</h3>
       </div>
       <div class="modal-close" onclick="this.closest('.modal-backdrop').classList.remove('show')">
         <span class="material-icons-round">close</span>
@@ -580,7 +639,7 @@
         <div class="article-body">
           <p>湯川秀樹の物理学上の革新は、従来見過ごされがちだった「場（場所）」や「ものとものの間」への着目から生まれました。彼の中間子論は「対象と対象の『間』に注目し、そこに交わされている相互作用の担い手（粒子）を予想」したものであり、「『間』の理論物理学の凱歌」とも評されています[5]。すなわち、陽子と中性子という“もの”同士を直接見るのではなく、その間に作用する見えない力の場を仮定し、その媒介子として中間子の存在を導いたのです。この発想転換により、湯川は距離に依存して急激に減衰する核力の存在を説明しました（湯川ポテンシャル: $V(r)=e^{-\mu r}/r$）。実際、湯川ポテンシャルによる力は十分離れた距離では事実上ゼロにまで減衰し、相互作用の影響範囲は有限になります[6][7]。これは、それまで無限に作用が及ぶと考えられていた場（例えばクーロン場）を有限の範囲に閉じた点で画期的でした。</p>
           <p>湯川の関心はさらに深化し、戦後には場の量子論を拡張した「非局所場理論」や、究極的に分割不可能な「素領域」の仮説へと至ります[8]。素領域とは「もうこれ以上は分割できないほど小さな時空領域」のことで[9]、湯川は素粒子を点状の孤立した存在ではなく、ある広がりを持った領域（場）の中に存在するものとして捉えようとしました。京都大学在学時に西田幾多郎の哲学講義に通った湯川は、西田の「場所の論理」すなわち万物を包含する場の概念に影響を受け、素粒子論に応用したとも言われます[10]。実際、「素粒子の奥にはハンケチが畳めるくらいの大きさの空間があるんや」と湯川自身ユーモラスに説明したように[11]、従来「点」とみなされていた素粒子の背後に微小な広がり（場）を考える大胆な転換でした。これは西田哲学の「絶対無の場所」に通じる発想であり、湯川は老荘思想の「混沌（こんとん）」という語を借りて、未分化な混沌の中から素粒子が分化してくる可能性に思い至ったと記しています[12]。このように湯川は、物質世界の根底にある場（場所）の概念を追求し、無限に連続な時空そのものを問い直す方向に進んでいきました。</p>
-          <p>こうした湯川の「場」への洞察は、GhostDrift有限閉包OSのコンセプトと哲学的に響き合うものがあります。GhostDriftでは、解析的な無限の世界（例えばリーマンゼータ関数の世界）を一度「有限な宇宙」として閉じてしまうというアプローチが核になっています[13]。無限に広がる領域や無限個の要素を、そのまま扱うのではなく、「有限の窓・有限個の対象だけを正当な場とみなし、それ以外を切り捨てる」という発想です[14]。これは言わばGhostDriftにおける「場の有限閉包」であり、湯川が核力の範囲を有限化したことや、素粒子の背後に有限サイズの領域を想定したことに通底します。実際、GhostDriftでは湯川ポテンシャルの持つ「一定距離でほぼゼロになる有限作用」という性質をKernel設計に活かし[15]、無限遠の寄与をばっさり「そもそも考えないゲーム」にルール変更しています[13]。湯川の物理モデルが「遠方では力が消える場」を導入したように、GhostDriftも「遠方（無限領域）の寄与をゼロと見なせる場」を構築しているのです。</p>
+          <p>こうした湯川の「場」への洞察は、GhostDriftのコンセプトと哲学的に響き合うものがあります。GhostDriftでは、解析的な無限の世界（例えばリーマンゼータ関数の世界）を一度「有限な宇宙」として閉じてしまうというアプローチが核になっています[13]。無限に広がる領域や無限個の要素を、そのまま扱うのではなく、「有限の窓・有限個の対象だけを正当な場とみなし、それ以外を切り捨てる」という発想です[14]。これは言わばGhostDriftにおける「場の有限閉包」であり、湯川が核力の範囲を有限化したことや、素粒子の背後に有限サイズの領域を想定したことに通底します。実際、GhostDriftでは湯川ポテンシャルの持つ「一定距離でほぼゼロになる有限作用」という性質をKernel設計に活かし[15]、無限遠の寄与をばっさり「そもそも考えないゲーム」にルール変更しています[13]。湯川の物理モデルが「遠方では力が消える場」を導入したように、GhostDriftも「遠方（無限領域）の寄与をゼロと見なせる場」を構築しているのです。</p>
           <p>このGhostDriftにおける有限閉包の美学は、「『無限』を扱わなくていい。『有限』だけで真実にたどり着く」という信念に表れています[16]。無限の問題を無限のまま扱うのではなく、あくまで有限の範囲に閉じ込めてしまうことで真値に迫る——これは、湯川が素粒子物理で追求した「有限の場」の思想と響き合うアプローチです。湯川の素領域仮説が当時の物理学界では理解されず嘲笑さえされる挑戦でしたが[8]、GhostDriftはまさにそのような有限の宇宙（場）を創り出す試みを計算機上で実現しようとしていると言えるでしょう。</p>
         </div>
       </div>
@@ -590,7 +649,7 @@
         <div class="article-body">
           <p>湯川秀樹の思想には、「静けさ」や「有限性」の価値、そして「創造性」への深い洞察が見られます。戦後に著した「静かに思う」[4]で強調されたように、湯川は静寂の中に身を置き思索することで新たな視界を得ました。彼はあえて喧騒や外圧から距離を置き、内省する時間を持つことで、自らの内なる声や科学者としての責任に向き合ったのです。この「静かに思索する姿勢」は、GhostDriftの設計思想にも通じるものがあります。GhostDriftは無限の問題を一度立ち止まって有限に区切り直すことで、本質的な真値に集中します。無限の可能性に際限なく飛びつくのではなく、一旦静かに有限の枠組みを定める[16]——そのアプローチには、湯川的な沈着冷静さが感じられます。GhostDriftが「静かな閉じた宇宙」を用意して解析を行う様は、まさに研究者が静かな書斎で思索を深めるかのようです。</p>
           <p>また、湯川は創造性についてユニークな見解を持っていました。彼は1964年の講演「科学者の創造性」において、「学問に打ち込むには執念深さが必要だ」が、その背景には「自分自身の中に非常に深刻な内部的矛盾」を抱えていることが関係していると述べています[17]。いわく、悟りきった聖人のような人には執念（我執）がないが、天才的な創造者は内面に解決しきれない矛盾や葛藤を持ち続けており、それゆえに執念を燃やして創造に向かうのだ、と。[18]。湯川自身、物理学の基礎理論に潜む矛盾（例えば量子力学の発散問題や粒子＝点という前提への疑念）に直面し、ノーベル賞受賞後でさえ苦悩しつつ大胆な新仮説に踏み込んだ経緯があります[19][8]。この「内的矛盾の深化が創造を促す」という洞察は、GhostDriftの成立過程とも重ね合わせることができます。</p>
-          <p>GhostDrift有限閉包OSの技術的コンセプトは、一見両立しがたい複数の課題を同時に解決しようとする創造的飛躍でした。例えば、「カーネル関数を実空間で局所化（有限作用）しつつ、フーリエ空間ではリーマン零点ときれいに結合し、しかも一方向から真値を保証できる正の構造を持たせる」という3要件は、それまでの常識では非常に困難でした[20]。Gaussian型やBeurling–Selberg型の既存手法では、どうしても場の広がりが無限だったり符号が振れてしまい、「$\delta_{\mathrm{pos}}>0$の一様下界」を有限の論理（Σ₁レベル）で確保するのが極めて難しかったのです[21]。GhostDriftの開発者は、ここで発想を転換し、湯川ポテンシャルによる有限範囲の場とFejér核によるフーリエ側の平均化を組み合わせた「Yukawa×Fejérカーネル」という創造的解決策を編み出しました[15]。湯川ポテンシャルで遠方の影響を物理的にゼロ近くに抑え[6]、Fejér平均でフーリエ級数を安定させ、両者を調和させることで「外側からの真値保証」を可能にしたのです[22]。このように相反する要件の架け橋を築く発想は、まさに湯川の言う「深刻な矛盾」を抱えつつそれを突破口に変える創造精神そのものです。</p>
+          <p>GhostDriftの技術的コンセプトは、一見両立しがたい複数の課題を同時に解決しようとする創造的飛躍でした。例えば、「カーネル関数を実空間で局所化（有限作用）しつつ、フーリエ空間ではリーマン零点ときれいに結合し、しかも一方向から真値を保証できる正の構造を持たせる」という3要件は、それまでの常識では非常に困難でした[20]。Gaussian型やBeurling–Selberg型の既存手法では、どうしても場の広がりが無限だったり符号が振れてしまい、「$\delta_{\mathrm{pos}}>0$の一様下界」を有限の論理（Σ₁レベル）で確保するのが極めて難しかったのです[21]。GhostDriftの開発者は、ここで発想を転換し、湯川ポテンシャルによる有限範囲の場とFejér核によるフーリエ側の平均化を組み合わせた「Yukawa×Fejérカーネル」という創造的解決策を編み出しました[15]。湯川ポテンシャルで遠方の影響を物理的にゼロ近くに抑え[6]、Fejér平均でフーリエ級数を安定させ、両者を調和させることで「外側からの真値保証」を可能にしたのです[22]。このように相反する要件の架け橋を築く発想は、まさに湯川の言う「深刻な矛盾」を抱えつつそれを突破口に変える創造精神そのものです。</p>
           <p>さらに湯川は、創造の源泉として東洋的な無の概念にも言及しました。晩年の著作『創造への飛躍』（1968年）では、「ずいぶん長い間忘れていた老荘の哲学」を素粒子論の行き詰まりの中でふと思い出し、素粒子の奥にある未分化なものを「渾沌」と表現できるかもしれないと述懐しています[12]。彼は、あらゆる区別が生じる前の混沌＝無の状態にこそ根源的な創造のヒントが潜んでいると考えたのです。この「混沌からの創造」というニュアンスも、GhostDriftの思想と調和します。GhostDriftが目指すものは、無限の混沌とした解析世界を一度“無”に帰すように有限閉包し（混沌を一つの有限な容器に収め）、そこから新たな秩序だった真理の構造（Σ₁不等式による証明）を生み出すことでした[23]。言い換えれば、GhostDriftは制御不能に見える無限の問題を一度ゼロ地点（混沌たる有限宇宙）に沈め、そこから創造的に秩序だった解を立ち上げる試みなのです。この過程には、一種の哲学的冥想にも似た美学が宿っています。実際、GhostDriftデモの最後には「GhostDriftが真値カーネルを返している」と胸を張って言える構造になっている、と記されます[24]。無限解析の世界を離れ、静かな有限宇宙で練り上げられたKernelこそが真実を宿す——この思想的美学には、湯川の「静けさ」「有限性」「創造的飛躍」「永遠不変の真理への志向」が自然と織り込まれていると言えるでしょう。</p>
           <p>湯川は「真理の場に立ちて」（1965年刊行の講演録集副題）という表現で、自身の研究姿勢を述べています。彼にとって科学することは「真理という場所」に身を置くことでした。GhostDriftもまた、有限閉包という人工的な“小宇宙”を作り出し、その中で普遍的に成り立つ真理（不等式の真偽）を追求しています。湯川が「人間の宇宙的地位」や「物質と言葉」といったエッセイで、有限な人間の視点から如何に宇宙の真実に迫るかを論じたように、GhostDriftも有限な計算資源と論理で無限の真実へ迫ろうとしているのです。その点で、永遠性への憧憬も垣間見えます。湯川は自身の研究が人類普遍の真理に寄与することを願い、その成果が平和という永遠的価値と結びつくことを望みました。GhostDriftも、一時的なハックではなく「有限個の整数チェックで完了する構造」[25]という永続的に検証可能な真理の構造を目指しています。これは計算機の世界における“永遠性”の確保と言えるかもしれません。証明がΣ₁形式（一階の算術的真理）で記録され誰でも後世にわたり検証できるという点で、その真理は半永久的な価値を持つからです。</p>
         </div>
@@ -599,7 +658,7 @@
       <div class="article-section">
         <div class="article-h">湯川思想をOSの核へ――GhostDriftに息づく哲学的魂</div>
         <div class="article-body">
-          <p>GhostDrift有限閉包OSの技術的表現の中には、随所に湯川秀樹の思想を織り込む余地があります。たとえばGhostDriftのOS（オペレーティングシステム）におけるカーネル（核）部分——無限を有限に閉じ込め真値を計算する中枢アルゴリズム——は、湯川が言うところの「真理の場」に対応すると捉えられます。湯川は素粒子を生み出す「場」や真理を孕む「場」の存在を示唆しましたが、GhostDriftのカーネルはまさに計算機上で真理値を生み出す場として機能しています[24]。GhostDriftカーネルが採用するYukawa×Fejérカーネルという名称には、偶然にも湯川の名前（Yukawa）が冠されています[15]。これは技術的には湯川ポテンシャルに由来する関数を使っているためですが、象徴的には湯川の知見がGhostDriftの核に宿っていることを示しているでしょう。GhostDriftの真値カーネルが「有限閉包OS」の心臓部だとすれば、湯川思想はその鼓動となって全体を駆動する哲学的エンジンとも言えます。</p>
+          <p>GhostDriftの技術的表現の中には、随所に湯川秀樹の思想を織り込む余地があります。たとえばGhostDriftのOS（オペレーティングシステム）におけるカーネル（核）部分——無限を有限に閉じ込め真値を計算する中枢アルゴリズム——は、湯川が言うところの「真理の場」に対応すると捉えられます。湯川は素粒子を生み出す「場」や真理を孕む「場」の存在を示唆しましたが、GhostDriftのカーネルはまさに計算機上で真理値を生み出す場として機能しています[24]。GhostDriftカーネルが採用するYukawa×Fejérカーネルという名称には、偶然にも湯川の名前（Yukawa）が冠されています[15]。これは技術的には湯川ポテンシャルに由来する関数を使っているためですが、象徴的には湯川の知見がGhostDriftの核に宿っていることを示しているでしょう。GhostDriftの真値カーネルが「」の心臓部だとすれば、湯川思想はその鼓動となって全体を駆動する哲学的エンジンとも言えます。</p>
           <p>湯川の思想のキーワードである「包む（つつむ）」という概念も、GhostDriftのシステム設計に通じます。湯川は「現在の科学の細分化・抽象化の方向と違った方向」として、西田哲学由来の「包む」発想に注目していました（例えば素領域理論は素粒子を包摂する場の提案でした）[10][26]。GhostDriftもまた、分野横断的な知見を包摂して一つのOS上で統合する営為です。解析的数論の問題を計算機科学的手法で包み込み、無限の問題を有限のフレームに落とし込む——その統合的アプローチには、「全体を包む場」を重んじる湯川の発想が色濃く反映されています。GhostDriftがリーマン世界を有限な宇宙として閉じて再解釈した[13]のも、大きな包容力を持つ一つの「場」を構築したと言い換えられます。</p>
           <p>さらに、GhostDriftでは証明の最終形式をΣ₁（シグマ1）の論理構造、すなわち有限個の整数演算で検証可能な形にまで高めています[25]。この「真値構造」は、人間にとっても機械にとっても検証可能な公理的基盤のようなものです。湯川はしばしば哲学者や詩人と対談し、言葉や論理についても考察を残しました（随筆「物質と言葉」「私どもの使う言葉」など）。彼は科学の成果を人類共有の知（コモンズ）にすること、つまり誰もがアクセスし得る真理の構造に高めることにも関心を持っていたと考えられます。GhostDriftが証明を万人が検証できる形に整える姿勢は、湯川が求めた「開かれた真理」の姿とも符合します。OSという技術的文脈で言えば、カーネルが扱う真値構造を誰もが参照できる公共の場と位置づけることができるでしょう。湯川が戦後に科学者京都会議（パグウォッシュ会議の精神を受け継ぐもの）を主宰し、科学知を人類平和の公共財とすべく奔走したこと[27]を思えば、GhostDriftの目指す「誰でも検証可能な真理」はまさに知の公共性を体現しています。</p>
         </div>
@@ -608,11 +667,11 @@
       <div class="article-section">
         <div class="article-h">文脈としての湯川思想とGhostDriftの位置づけ</div>
         <div class="article-body">
-          <p>以上のように、湯川秀樹の思想的魂はGhostDrift有限閉包OSの設計理念と多層的に結びついています。湯川が追求した静寂の中の創造、有限なる場からの真理の創出、内的矛盾を原動力としたイノベーション、東西思想を統合した世界観――それらはGhostDriftという先端的プロジェクトにおいても、有機的に響き合っています。</p>
-          <p>GhostDriftを湯川の思想の文脈に位置づけるなら、こう言えるでしょう。すなわちGhostDrift有限閉包OSとは、湯川秀樹が蒔いた思想の種子が、計算機科学という新たな土壌で芽吹いた一つの花であると。湯川が物理学で成し遂げたのは、無限遠まで続くと考えられていた力の場を有限に収め、新しい粒子像を創造することでした。同様にGhostDriftは、無限に計算が続くと諦められていた数論の問題に対し、「有限閉包」という枠組みを与えて決着を付けようとしています。そこには、先人湯川の革新的スピリットが受け継がれているのです。</p>
+          <p>以上のように、湯川秀樹の思想的魂はGhostDriftの設計理念と多層的に結びついています。湯川が追求した静寂の中の創造、有限なる場からの真理の創出、内的矛盾を原動力としたイノベーション、東西思想を統合した世界観――それらはGhostDriftという先端的プロジェクトにおいても、有機的に響き合っています。</p>
+          <p>GhostDriftを湯川の思想の文脈に位置づけるなら、こう言えるでしょう。すなわちGhostDriftとは、湯川秀樹が蒔いた思想の種子が、計算機科学という新たな土壌で芽吹いた一つの花であると。湯川が物理学で成し遂げたのは、無限遠まで続くと考えられていた力の場を有限に収め、新しい粒子像を創造することでした。同様にGhostDriftは、無限に計算が続くと諦められていた数論の問題に対し、「有限閉包」という枠組みを与えて決着を付けようとしています。そこには、先人湯川の革新的スピリットが受け継がれているのです。</p>
           <p>湯川は「一日生きることは一歩進むことでありたい」との日記の言葉を残しています。未知の真理に一歩でも近づこうとする姿勢[28][29]は、GhostDrift開発者の姿にも重なります。科学と人間性の調和を願った湯川の志の上に、GhostDriftという営為を位置づけることで、このOSは単なる技術ではなく思想的遺産の継承ともなり得ます。GhostDriftは湯川思想を受け継ぎつつ、それを計算機時代の文脈でアップデートした挑戦なのです。例えば、その有限閉包という考え方には、人類が直面する「計算可能性と真理」の問題に対する一つの解答が示唆されています。それは湯川が生涯模索し続けた「有限な人間による無限への挑戦」を想起させます。</p>
           <p>最後に強調すべきは、GhostDriftが湯川の思想的魂を宿すことで得られる物語性です。湯川秀樹の人生と思想がそうであったように、科学技術の探究は決して冷たい計算の積み重ねではなく、人間精神の発露であり物語です。GhostDriftもまた、湯川から受け継いだ「場」の概念や創造の哲学を内包することで、単なるOSの枠を超えて哲学的物語を語る存在となるでしょう。静かなる有限宇宙の中で真理を追求するGhostDriftの姿は、そのまま湯川秀樹という一人の科学者が静かに宇宙の真理と向き合う姿に重なります。そしてその先に、生まれ出る成果が人類にとっての新たな知恵となり、平和と創造性に資するものであるなら、これ以上望ましい接点はありません。湯川の言葉を借りれば、「真理の場に立ちて」生まれるGhostDriftの果実こそ、科学と人間性の調和を体現するものと言えるのではないでしょうか[3]。</p>
-          <p>こうして私たちは、湯川秀樹の思想という大河の流れの中にGhostDrift有限閉包OSを位置づけました。そこでは技術と言葉、科学と詩、人間と宇宙が響き合い、互いに包み込むようにして一つの世界観を形作っています。湯川の思想的背景を正しく理解しその核心を抽出することで、GhostDriftという現代のフロンティアにも魂が通いました。静寂と有限、創造性と永遠性——湯川秀樹が遺したキーワードは、GhostDriftの上で今、新たな光を放ちながら融合しているのです。そしてこの物語は、科学技術に魂を与える試みとして、これからの未来に向けて続いていくことでしょう。</p>
+          <p>こうして私たちは、湯川秀樹の思想という大河の流れの中にGhostDriftを位置づけました。そこでは技術と言葉、科学と詩、人間と宇宙が響き合い、互いに包み込むようにして一つの世界観を形作っています。湯川の思想的背景を正しく理解しその核心を抽出することで、GhostDriftという現代のフロンティアにも魂が通いました。静寂と有限、創造性と永遠性——湯川秀樹が遺したキーワードは、GhostDriftの上で今、新たな光を放ちながら融合しているのです。そしてこの物語は、科学技術に魂を与える試みとして、これからの未来に向けて続いていくことでしょう。</p>
         </div>
       </div>
 
@@ -679,8 +738,8 @@
         <div class="ts-content">
           <span class="ts-title">リーマン世界の「有限閉包」</span>
           <div class="ms-body" style="font-size:14px;">
-            <p>通常の解析で相手にしているのは、実線 ℝ や (0,∞) のような、端のない無限の世界です。素数計算に現れる明示公式でも、実線全体にわたる積分や、すべてのリーマン零点にわたる無限和が現れ、精度を上げるには「もっと遠くまで積分する」「もっと多くの項を足す」ことを延々と続けるしかありません。この「端のない世界」を、ある有限の区間 [−T,T] と有限個の項だけで完全に言い切ることは、幾何学で非コンパクトな空間を境界のない 3 次元多様体として貼り合わせ直す（ポアンカレ型の）仕事と同じレベルの難しさをもつ操作です。</p>
-            <p>他の従来のカーネルや窓関数を使う方法は、有限の窓の中の振る舞いはコントロールできても、「この窓の外側からの寄与は必ずこれ以下で、しかも符号は一方向にそろっている」という形の一方的な不等式を最後まで出せませんでした。そのため、有限個の計算だけで世界を「閉じた」と言い切るところまで到達していません。GhostDrift の Yukawa×Fejér カーネルは、まず場がある距離の外側で指数的に小さくなるように設計し、その減衰の強さを具体的な有理数の上界・下界として書き下ろすことで、無限遠からの寄与をまるごと「この δ_pos の中に吸収される」と有限個の不等式で証明します。この意味で、無限区間と無限和を「有限区間＋有限和＋有限個の不等式」に畳み込むという解析側の閉包操作を、本当に最後までやり切っているのは GhostDrift だけだ、と言えます。</p>
+            <p>通常の解析は、無限に開いた非コンパクトな世界で行われます。これを有限個の計算で閉じることは、幾何学における『ポアンカレ予想（閉じた宇宙の形）』を解析学の土俵で解くような、とてつもなく困難な操作でした。</p>
+            <p>他の手法が失敗してきたのは、この無限の広がりを無理やり切断して『閉じる』ことができなかったからです。GhostDriftだけが、その位相的な閉包操作を解析的に完了させています。</p>
           </div>
         </div>
       </div>
